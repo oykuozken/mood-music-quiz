@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Discover Your Mood with Music 🎧</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="A quick quiz that recommends a Spotify playlist based on your mood." />
+  <style>
+    :root {
+      --brand:#E60000;
+      --bg:#f4f4f4;
+      --card:#ffffff;
+      --text:#333;
+      --muted:#444;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: var(--bg);
+      padding: 20px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 520px;
+      margin: auto;
+      background: var(--card);
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,.08);
+      border-left: 6px solid var(--brand);
+    }
+    h2 {
+      color: var(--brand);
+      text-align: center;
+      margin-top: 0;
+    }
+    .question { margin-bottom: 20px; }
+    .hidden { display: none; }
+
+    button {
+      width: 100%;
+      margin: 10px 0;
+      padding: 12px;
+      font-size: 16px;
+      background: #fff;
+      border: 2px solid var(--brand);
+      color: var(--brand);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .2s, color .2s, transform .02s;
+    }
+    button:hover { background: var(--brand); color: #fff; }
+    button:active { transform: translateY(1px); }
+
+    .result {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .result a {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 10px 16px;
+      background: var(--brand);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 5px;
+    }
+
+    .promo {
+      margin-top: 20px;
+      background: #fff7f7;
+      padding: 15px;
+      border-left: 4px solid var(--brand);
+      border-radius: 8px;
+      font-size: 15px;
+      color: var(--muted);
+    }
+
+    /* Better focus styles for accessibility */
+    button:focus-visible, a:focus-visible {
+      outline: 3px solid #000;
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+<div class="container" role="application" aria-label="Discover Your Mood with Music quiz">
+  <h2>Discover Your Mood with Music 🎵</h2>
+
+  <div id="quiz">
+    <div class="question" id="q1" aria-live="polite">
+      <p><strong>1.</strong> What’s the vibe of the first song you want in the morning?</p>
+      <button type="button" onclick="selectAnswer(1, 'overthink')">Thought-provoking and deep</button>
+      <button type="button" onclick="selectAnswer(1, 'energetic')">High tempo, wake-me-up</button>
+      <button type="button" onclick="selectAnswer(1, 'melancholic')">Slow and emotional</button>
+    </div>
+
+    <div class="question hidden" id="q2">
+      <p><strong>2.</strong> How do you pick new music?</p>
+      <button type="button" onclick="selectAnswer(2, 'overthink')">I read the lyrics and seek meaning</button>
+      <button type="button" onclick="selectAnswer(2, 'energetic')">I care about rhythm and the beat</button>
+      <button type="button" onclick="selectAnswer(2, 'melancholic')">If it’s melodic and emotional, I’m in</button>
+    </div>
+
+    <div class="question hidden" id="q3">
+      <p><strong>3.</strong> When do you listen the most?</p>
+      <button type="button" onclick="selectAnswer(3, 'overthink')">Alone—when I’m clearing my head</button>
+      <button type="button" onclick="selectAnswer(3, 'energetic')">While working out or on the move</button>
+      <button type="button" onclick="selectAnswer(3, 'melancholic')">Late at night, lying in bed</button>
+    </div>
+
+    <div class="question hidden" id="q4">
+      <p><strong>4.</strong> How do you build your playlists?</p>
+      <button type="button" onclick="selectAnswer(4, 'overthink')">By mood—with meaningful titles</button>
+      <button type="button" onclick="selectAnswer(4, 'energetic')">Packed with hype, pump-up tracks</button>
+      <button type="button" onclick="selectAnswer(4, 'melancholic')">Mostly emotional, slow songs</button>
+    </div>
+
+    <div class="question hidden" id="q5">
+      <p><strong>5.</strong> At a festival, which stage pulls you in?</p>
+      <button type="button" onclick="selectAnswer(5, 'overthink')">Acoustic, lyric-focused sets</button>
+      <button type="button" onclick="selectAnswer(5, 'energetic')">Main stage—dance and high energy</button>
+      <button type="button" onclick="selectAnswer(5, 'melancholic')">Chill stages that wind down at night</button>
+    </div>
+  </div>
+
+  <div class="result hidden" id="result" aria-live="polite"></div>
+</div>
+
+<script>
+  // Prevent double submissions by disabling buttons after click per question
+  let scores = { overthink: 0, energetic: 0, melancholic: 0 };
+
+  function disableButtons(q){
+    const container = document.getElementById('q'+q);
+    container.querySelectorAll('button').forEach(btn => btn.disabled = true);
+  }
+
+  function selectAnswer(q, type) {
+    scores[type]++;
+    disableButtons(q);
+    document.getElementById('q' + q).classList.add('hidden');
+    if (q < 5) {
+      document.getElementById('q' + (q + 1)).classList.remove('hidden');
+    } else {
+      showResult();
+    }
+  }
+
+  function showResult() {
+    const top = Object.keys(scores).reduce((a, b) => scores[a] > scores[b] ? a : b);
+    const resultDiv = document.getElementById('result');
+
+    const copy = {
+      overthink: {
+        text: "🧠 You’re in a reflective mood — always searching for meaning. Here’s a playlist curated for deep thinkers.",
+        link: "https://open.spotify.com/playlist/5bv0U1t5zgPy18eouA4GpD?si=d1b587b2ee8740ab"
+      },
+      energetic: {
+        text: "⚡ You’re all about energy — upbeat, positive, and ready to move! This one’s for you.",
+        link: "https://open.spotify.com/playlist/4HQtNccGMiNvM45VTUDEsx?si=a8a3a29577954db1"
+      },
+      melancholic: {
+        text: "🌧️ You’re tuned into your feelings — connecting through emotion and melody. Try this mellow mix.",
+        link: "https://open.spotify.com/playlist/6gQJ0Qca8JosnDyRGJwzaa?si=b5636e20e1e14298"
+      }
+    };
+
+    resultDiv.innerHTML = `
+      <p>${copy[top].text}</p>
+      <a href="${copy[top].link}" target="_blank" rel="noopener noreferrer" aria-label="Open Spotify playlist">🎧 Open on Spotify</a>
+
+      <p style="margin-top:20px;font-size:16px;">
+        🎉 Share your moment with <strong>#ItBecomesYou</strong>! Add your result to your story and don’t forget to tag <strong>@akbank</strong>.
+      </p>
+
+      <div class="promo">
+        📱 Download <strong>Akbank Mobile</strong> and earn <strong>250 TL Chip-Para</strong>!<br><br>
+        🎁 Plus, if you share your playlist story with <strong>#ItBecomesYou</strong> and download <strong>Akbank Mobile</strong>, you’ll be eligible to enter the <strong>Apple AirPods Max</strong> giveaway.
+      </div>
+    `;
+    resultDiv.classList.remove('hidden');
+  }
+</script>
+</body>
+</html>
